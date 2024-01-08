@@ -19,6 +19,7 @@ def process_type_util(request) :
     else:
         return HttpResponse('Invalid request method')
 
+""" Espace Utilisateur """
 # Permettent de passer du formulaire à l'espace personnel :
 def process_form(request) :
     if request.method == 'POST' :
@@ -68,6 +69,37 @@ def accueil_perso(request, id_util) :
 
     return render(request, 'utilisateur/accueil_perso.html', context={"utilisateur":util, "confs":tot_confs, "workshops":tot_wk})
 
+# Permettent d'effectuer les recherches :
+def recherche(request, id_util) :
+    util = Utilisateur.objects.filter(id_util=id_util)[0]
+
+    if request.method == 'GET' :
+        input = request.GET.get('query')
+        if input != '' :
+            search = input.split(' ')
+            tot_confs = []
+            tot_wk = []
+            for theme in search :
+                confs = Conference.objects.filter(Q(conf_intitule__icontains=theme)| Q(text_introductif__icontains=theme) | Q(loc_ville__icontains=theme) | Q(loc_pays__icontains=theme), date_de_debut__gt = timezone.now())
+                workshops = Workshop.objects.filter(Q(text_introductif__icontains=theme) | Q(loc_ville__icontains=theme) | Q(loc_pays__icontains=theme), date_de_debut__gt = timezone.now())
+                if len(confs) != 0 :
+                    for conf in confs :
+                        if conf not in tot_confs :
+                            tot_confs.append(conf)
+
+                if len(workshops) != 0 :
+                    for workshop in workshops :
+                        if workshop not in tot_wk :
+                            tot_wk.append(workshop)
+
+        else :
+            tot_confs = Conference.objects.filter(date_de_debut__gt = timezone.now())
+            tot_wk = Workshop.objects.filter(date_de_debut__gt = timezone.now())
+        return render(request, 'utilisateur/recherche.html', context={"utilisateur":util, "confs":tot_confs, "workshops": tot_wk} )
+
+    else :
+        return HttpResponse('Invalid request method')
+
 # Permettent à l'utilisateur de s'inscrire à une conférence
 def inscription(request, conf_intitule, id_util) :
     session = Session.objects.filter(conf_intitule=conf_intitule)
@@ -98,28 +130,3 @@ def inscription(request, conf_intitule, id_util) :
 
     else :
         return HttpResponse('Vous êtes déjà inscrit.e')
-
-# Permettent d'effectuer les recherches :
-def recherche(request, id_util) :
-    util = Utilisateur.objects.filter(id_util=id_util)[0]
-
-    if request.method == 'GET' :
-        input = request.GET.get('query')
-        if input != '' :
-            search = input.split(' ')
-            tot_confs = []
-            for theme in search :
-                confs = Conference.objects.filter(Q(conf_intitule__icontains=theme)| Q(text_introductif__icontains=theme) | Q(loc_ville__icontains=theme) | Q(loc_pays__icontains=theme), date_de_debut__gt = timezone.now())
-                workshops = Workshop.objects.filter(Q(text_introductif__icontains=theme) | Q(loc_ville__icontains=theme) | Q(loc_pays__icontains=theme), date_de_debut__gt = timezone.now())
-                if len(confs) != 0 :
-                    for conf in confs :
-                        if conf not in tot_confs :
-                            tot_confs.append(conf)
-
-        else :
-            tot_confs = Conference.objects.filter(date_de_debut__gt = timezone.now())
-
-        return render(request, 'utilisateur/accueil_perso.html', context={"utilisateur":util, "confs":tot_confs} )
-
-    else :
-        return HttpResponse('Invalid request method')
