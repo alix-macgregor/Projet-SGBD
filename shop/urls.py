@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from store.views import index, inscrits, process_form, process_form_orga, process_type_util, inscription, recherche, nouvelle_conf
+from store.views import index, inscrits, nouvelle_conf_orga, process_form, process_form_orga, process_type_util, inscription, recherche, nouvelle_conf_orga
 
 urlpatterns = [
     # url pour les administrateur du site
@@ -33,8 +33,7 @@ urlpatterns = [
 
     # urls spécifique aux organisateurs
     path('organisateur/process_form_orga', process_form_orga, name = 'process_form_orga'),
-    path('organisateur/nouvelle_conférence', nouvelle_conf, name='nouvelle_conf'),
+    path('organisateur/nouvelle_conférence/<str:orga_nom>/<str:mail>/<str:adresse>', nouvelle_conf_orga, name='nouvelle_conf_orga'),
     path('organisateur/inscrits/<str:conf_intitule>', inscrits, name='inscrits'),
-    path('organisateur/recherche/<int:id_util>', recherche, name='recherche'),
 
 ]

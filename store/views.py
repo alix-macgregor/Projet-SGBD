@@ -136,14 +136,15 @@ def inscription(request, conf_intitule, id_util) :
 
 """ Espace Organisateur"""
 # Crée un nouvel orga en forçant la création d'un conférence associée :
-def new_orga(request, orga_nom, mail, adresse) :
-    conf = render(request, 'organisateur/nouvelle_conf.html')[1]
-
-    nouvel_orga = Organisateur(orga_nom=orga_nom, mail=mail, adresse=adresse, conf_intitule=conf.conf_intitule)
+def new_orga(request, orga_nom, mail, adresse, conf_intitule) :
+    conf = Conference.objects.filter(conf_intitule=conf_intitule)[0]
+    nouvel_orga = Organisateur(orga_nom=orga_nom, mail=mail, adresse=adresse, conf_intitule=conf)
     nouvel_orga.save()
 
+    return accueil_orga(request, orga_nom)
 
-def nouvelle_conf(request, orga_nom) :
+
+def nouvelle_conf_orga(request, orga_nom, mail, adresse) :
     if request.method == 'POST' :
         input1 = request.POST.get('conf_intitule')
         input2 = request.POST.get('text_introductif')
@@ -165,7 +166,8 @@ def nouvelle_conf(request, orga_nom) :
                                    )
         nouvelle_conf.save()
 
-        return accueil_orga(request, orga_nom), nouvelle_conf
+        return new_orga(request, orga_nom, mail, adresse, input1)
+
     else :
         return HttpResponse('Invalid request method')
 
@@ -180,7 +182,8 @@ def process_form_orga(request) :
 
             if input2 == '' or input3 == '' :
                 return HttpResponse('Veuillez indiquer un mail et une adresse')
-            return new_orga(request, input1, input2, input3)
+
+            return render(request, 'organisateur/nouvelle_conf_orga.html', context={'orga_nom':input1,'mail':input2, 'adresse':input3})
 
         return accueil_orga(request, input1)
 
@@ -189,13 +192,12 @@ def process_form_orga(request) :
 
 def accueil_orga(request, orga_nom) :
     orga = Organisateur.objects.filter(orga_nom=orga_nom)[0]
-    confs = Organise.objects.filter(prog_commitee=orga.id)
 
-    conf_intitules = [conf.conf_intitule for conf in confs]
-    tot_confs = [Conference.objects.filter(conf_intitule=conf_intitule)[0] for conf_intitule in conf_intitules]
+    conf = Conference.objects.filter(conf_intitule=orga.conf_intitule)[0]
 
-    return render(request, 'organisateur/accueil_perso.html', context={"organisateur":orga, "confs":tot_confs})
+    return render(request, 'organisateur/accueil_perso.html', context={"organisateur":orga, "confs":[conf]})
 
+# Permet d'afficher la liste de tous les inscrits pour une conférence
 def inscrits(request, conf_intitule) :
     inscriptions = Inscription.objects.filter(conf_intitule=conf_intitule)
 

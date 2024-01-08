@@ -125,6 +125,7 @@ class Organise(models.Model):
 
     def __str__(self) :
         return str(self.conf_intitule) + ' --- ' + str(self.prog_commitee)
+
 class ProgramCommitee(models.Model):
     id_prog_commitee = models.AutoField(primary_key=True)
     pc_nom = models.CharField(db_column="PC_nom", max_length=20)
