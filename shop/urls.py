@@ -16,14 +16,25 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from store.views import index, index_type, process_form, process_type_util, inscription, recherche
+from store.views import index, inscrits, process_form, process_form_orga, process_type_util, inscription, recherche, nouvelle_conf
 
 urlpatterns = [
-    path('', index, name='index'),
-    path('process_form', process_form, name = 'process_form'),
-    path('process_type', process_type_util, name="process_type"),
+    # url pour les administrateur du site
     path('admin/', admin.site.urls),
-    path('<str:type>', index_type, name="index_type"),
-    path('inscription/<str:conf_intitule>/<int:id_util>', inscription, name='inscription'),
-    path('recherche/<int:id_util>', recherche, name='recherche'),
+
+    # urls communes à tout type de personnes (orga, util, respo, prog comité)
+    path('', index, name='index'),
+    path('process_type', process_type_util, name="process_type"),
+
+    # urls spécifiques aux utilisateurs
+    path('utilisateur/process_form', process_form, name = 'process_form'),
+    path('utilisateur/inscription/<str:conf_intitule>/<int:id_util>', inscription, name='inscription'),
+    path('utilisateur/recherche/<int:id_util>', recherche, name='recherche'),
+
+    # urls spécifique aux organisateurs
+    path('organisateur/process_form_orga', process_form_orga, name = 'process_form_orga'),
+    path('organisateur/nouvelle_conférence', nouvelle_conf, name='nouvelle_conf'),
+    path('organisateur/inscrits/<str:conf_intitule>', inscrits, name='inscrits'),
+    path('organisateur/recherche/<int:id_util>', recherche, name='recherche'),
+
 ]

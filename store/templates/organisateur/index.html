@@ -3,17 +3,17 @@
 {% block content %}
 <section id="login-section">
 <h2>Connexion - Vous êtes un organisateur</h2>
-<form action="{% url 'process_form' %}" method="post">
+<form action="{% url 'process_form_orga' %}" method="post">
   {% csrf_token %}
-  <label for="name">Votre nom:</label>
-  <input type="text" id="name" name="name" required>
+  <label for="name">Votre nom complet :</label>
+  <input type="text" id="name" placeholder="George R. R. Martin" name="name" required>
 
-  <label for="surname">Votre prénom:</label>
-  <input type="text" id="surname" name="surname" required>
-
+  <h1>Première inscription</h1>
   <label for="email">Votre email:</label>
-  <input type="text" id="email" name="email" required>
+  <input type="text" id="email" name="email" value="exemple@mail.com">
 
+  <label for="email">Votre adresse:</label>
+  <input type="text" id="adresse" name="adresse" value="Champ de Mars, 5 Av. Anatole France, 75007 Paris">
 
   <button type="submit">Se connecter</button>
 </form>

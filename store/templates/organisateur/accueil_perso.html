@@ -1,0 +1,42 @@
+{% extends 'accueil.html' %}
+
+{% block content %}
+<section id="main-content">
+  <h2>Votre endroit personnel : {{ organisateur.orga_nom }}</h2>
+  <em>Adresse : {{ organisateur.adresse }},</em>
+  <em>Email: {{ organisateur.mail }}</em>
+</section>
+
+
+<section id="présentation des conferences">
+  <h2>Les conférences que vous organisez :</h2>
+  <table>
+    <thead>
+        <tr>
+            <th>Initulé</th>
+            <th>Présentation</th>
+            <th>Date de début</th>
+            <th>Date de fin</th>
+            <th>Localisation</th>
+            <th>Inscrits</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for conf in confs %}
+            <tr>
+                <td>{{ conf.conf_intitule }}</td>
+                <td>{{ conf.text_introductif }}</td>
+                <td>{{ conf.date_de_debut }}</td>
+                <td>{{ conf.date_de_fin }}</td>
+                <td>{{ conf.loc_ville }}, {{ conf.loc_pays }}</td>
+                <td>
+                  <a href="{% url 'inscrits' conf_intitule=conf.conf_intitule %}">
+                    <h3>Voir les inscrits</h3>
+                  </a>
+                </td>
+            </tr>
+        {% endfor %}
+  </tbody>
+  </table>
+</section>
+{% endblock %}

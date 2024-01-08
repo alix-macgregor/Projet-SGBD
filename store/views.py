@@ -2,7 +2,7 @@ from django.utils import timezone
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
-from store.models import Conference, Inscription, Session, Utilisateur, Workshop
+from store.models import Conference, Inscription, Organisateur, Organise, Session, Utilisateur, Workshop
 
 # Vue qui permettent de séparer les différents types d'utilisateurs :
 def index(request) :
@@ -25,10 +25,13 @@ def process_form(request) :
     if request.method == 'POST' :
         input1 = request.POST.get('name')
         input2 = request.POST.get('surname')
-        input3 = request.POST.get('email')
 
         util = Utilisateur.objects.filter(util_nom=input1, util_prenom=input2)
         if len(util) == 0 :
+            input3 = request.POST.get('email')
+            if input3 == '' :
+                return HttpResponse('Veuillez indiquer une adresse mail')
+
             util = Utilisateur(util_nom=input1, util_prenom=input2, mail=input3)
             util.save()
             util = Utilisateur.objects.filter(util_nom=input1, util_prenom=input2)
@@ -130,3 +133,80 @@ def inscription(request, conf_intitule, id_util) :
 
     else :
         return HttpResponse('Vous êtes déjà inscrit.e')
+
+""" Espace Organisateur"""
+# Crée un nouvel orga en forçant la création d'un conférence associée :
+def new_orga(request, orga_nom, mail, adresse) :
+    conf = render(request, 'organisateur/nouvelle_conf.html')[1]
+
+    nouvel_orga = Organisateur(orga_nom=orga_nom, mail=mail, adresse=adresse, conf_intitule=conf.conf_intitule)
+    nouvel_orga.save()
+
+
+def nouvelle_conf(request, orga_nom) :
+    if request.method == 'POST' :
+        input1 = request.POST.get('conf_intitule')
+        input2 = request.POST.get('text_introductif')
+        input3 = request.POST.get('serie')
+        input4 = request.POST.get('editeur_acte')
+        input5 = request.POST.get('date_de_debut')
+        input6 = request.POST.get('date_de_fin')
+        input7 = request.POST.get('loc_ville')
+        input8 = request.POST.get('loc_pays')
+
+        nouvelle_conf = Conference(conf_intitule=input1,
+                                   text_introductif=input2,
+                                   serie=input3,
+                                   editeur_actes=input4,
+                                   date_de_debut=input5,
+                                   date_de_fin=input6,
+                                   loc_ville=input7,
+                                   loc_pays=input8
+                                   )
+        nouvelle_conf.save()
+
+        return accueil_orga(request, orga_nom), nouvelle_conf
+    else :
+        return HttpResponse('Invalid request method')
+
+def process_form_orga(request) :
+    if request.method == 'POST' :
+        input1 = request.POST.get('name')
+
+        orga = Organisateur.objects.filter(orga_nom=input1)
+        if len(orga) == 0 :
+            input2 = request.POST.get('email')
+            input3 = request.POST.get('adresse')
+
+            if input2 == '' or input3 == '' :
+                return HttpResponse('Veuillez indiquer un mail et une adresse')
+            return new_orga(request, input1, input2, input3)
+
+        return accueil_orga(request, input1)
+
+    else:
+        return HttpResponse('Invalid request method')
+
+def accueil_orga(request, orga_nom) :
+    orga = Organisateur.objects.filter(orga_nom=orga_nom)[0]
+    confs = Organise.objects.filter(prog_commitee=orga.id)
+
+    conf_intitules = [conf.conf_intitule for conf in confs]
+    tot_confs = [Conference.objects.filter(conf_intitule=conf_intitule)[0] for conf_intitule in conf_intitules]
+
+    return render(request, 'organisateur/accueil_perso.html', context={"organisateur":orga, "confs":tot_confs})
+
+def inscrits(request, conf_intitule) :
+    inscriptions = Inscription.objects.filter(conf_intitule=conf_intitule)
+
+    if len(inscriptions) != 0 :
+        inscrits = []
+        for inscription in inscriptions :
+            id_util = inscription.utilisateur.id_util
+            util = Utilisateur.objects.filter(id_util=id_util)[0]
+            inscrits.append([util.util_prenom + ' ' + util.util_nom, util.profil])
+
+        return render(request, 'store/inscrits.html', context={'inscrits':inscrits, "conf":conf_intitule})
+
+    else :
+        return HttpResponse("Pas d'inscrits")

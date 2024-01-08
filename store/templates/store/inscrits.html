@@ -1,0 +1,25 @@
+{% extends 'accueil.html' %}
+
+{% block content %}
+
+<section id="liste_inscrits">
+  <h2>Inscrits pour {{ conf }} :</h2>
+  <table>
+    <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Profil</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for inscrit in inscrits %}
+            <tr>
+                <td>{{ inscrit.0 }}</td>
+                <td>{{ inscrit.1 }}</td>
+            </tr>
+        {% endfor %}
+  </tbody>
+  </table>
+</section>
+
+{% endblock %}
