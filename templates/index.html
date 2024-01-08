@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<style>
+  body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+header {
+  background-color: #50b8ba;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+}
+
+nav ul li {
+  display: inline;
+  margin-right: 20px;
+}
+
+nav a {
+  text-decoration: none;
+  color: #fff;
+  font-weight: bold;
+}
+
+#main-content {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+footer {
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+#login-section {
+  max-width: 400px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+#login-section h2 {
+  color: #333;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-bottom: 8px;
+}
+
+input {
+  padding: 8px;
+  margin-bottom: 16px;
+}
+
+button {
+  padding: 10px;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #555;
+}
+
+#utilisation_profle {
+  overflow-y: auto;
+}
+
+</style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projets Conférences</title>
+</head>
+<body>
+  <header>
+    <h1>Site pour le gestion des conférences</h1>
+  </header>
+
+<section id="main-content">
+  <h2>Bienvenue</h2>
+  <p>Ce site a pour but de gérer les conférences à venir</p>
+</section>
+
+{% block content %}
+
+{% endblock %}
+
+<footer>
+  <p> MOD système de base de données - Projets Alix Macgregor & Nicolas Pigneux</p>
+</footer>
+
+</html>

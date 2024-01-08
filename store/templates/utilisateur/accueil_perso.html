@@ -1,0 +1,77 @@
+{% extends 'accueil.html' %}
+
+{% block content %}
+<section id="main-content">
+  <h2>Votre endroit personnel : {{ utilisateur.util_prenom }} {{ utilisateur.util_nom }}</h2>
+</section>
+
+<section id="recherche">
+  <body>
+      <div class="search-container">
+          <h2>Recherche</h2>
+          <form action="{% url 'recherche' id_util=utilisateur.id_util %}" method="get">
+              <input class="search-input" type="text" name="query" placeholder="Entrez des mots clés" required>
+              <button class="search-button" type="submit">Rechercher</button>
+          </form>
+      </div>
+  </section>
+
+<section id="utilisation_profil">
+  <h2>Les conférences qui pourraient vous intéresser :</h2>
+  <table>
+    <thead>
+        <tr>
+            <th>Initulé</th>
+            <th>Présentation</th>
+            <th>Date de début</th>
+            <th>Date de fin</th>
+            <th>Localisation</th>
+            <th>Inscription</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for conf in confs %}
+            <tr>
+                <td>{{ conf.conf_intitule }}</td>
+                <td>{{ conf.text_introductif }}</td>
+                <td>{{ conf.date_de_debut }}</td>
+                <td>{{ conf.date_de_fin }}</td>
+                <td>{{ conf.loc_ville }}, {{ conf.loc_pays }}</td>
+                <td>
+                  <a href="{% url 'inscription' conf_intitule=conf.conf_intitule id_util=utilisateur.id_util %}">
+                    <h3>S'inscrire</h3>
+                  </a>
+                </td>
+            </tr>
+        {% endfor %}
+  </tbody>
+  </table>
+  <h2>Les workshops qui pourraient vous intéresser :</h2>
+  <table>
+        <thead>
+          <tr>
+              <th>Initulé</th>
+              <th>Présentation</th>
+              <th>Date de début</th>
+              <th>Date de fin</th>
+              <th>Localisation</th>
+              <th>Inscription</th>
+          </tr>
+      </thead>
+      <tbody>
+        {% for workshop in workshops %}
+            <tr>
+                <td>{{ workshop.wk_intitule }}</td>
+                <td>{{ workshop.text_introductif }}</td>
+                <td>{{ workshop.date_de_debut }}</td>
+                <td>{{ workshop.date_de_fin }}</td>
+                <td>{{ workshop.loc_ville }}, {{ conf.loc_pays }}</td>
+                <td>
+                  <a href="{% url 'inscription' conf_intitule=workshop.wk_intitule id_util=utilisateur.id_util %}">
+                    <h3>S'inscrire</h3>
+                  </a>
+                </td>
+            </tr>
+  {% endfor %}
+</section>
+{% endblock %}

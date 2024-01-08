@@ -1,0 +1,22 @@
+{% extends 'index.html' %}
+
+{% block content %}
+<section id="login-section">
+<h2>Connexion - Vous êtes un membre du comité de programme</h2>
+<form action="{% url 'process_form' %}" method="post">
+  {% csrf_token %}
+  <label for="name">Votre nom:</label>
+  <input type="text" id="name" name="name" required>
+
+  <label for="surname">Votre prénom:</label>
+  <input type="text" id="surname" name="surname" required>
+
+  <label for="email">Votre email:</label>
+  <input type="text" id="email" name="email" required>
+
+
+  <button type="submit">Se connecter</button>
+</form>
+</section>
+
+{% endblock %}
