@@ -2,7 +2,7 @@
 from django.utils import timezone
 from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 from store.models import CategorieDeSoumission, Conference, Evaluation, Inscription, Organisateur, Organise, ProgramCommitee, Responsabilite, Responsable, ResponsableDe, Session, Utilisateur, Workshop, Soumission
 
 # Vue qui permettent de séparer les différents types d'utilisateurs :
@@ -385,6 +385,7 @@ def process_form_respo(request) :
 
         else :
             respo = Responsable.objects.filter(resp_nom=input1, resp_prenom=input2)
+            responsabilite = Responsabilite(responsabilite=input5)
             if len(respo) == 0 :
                 input3 = request.POST.get('email')
                 input4 = request.POST.get('adresse')
@@ -392,7 +393,7 @@ def process_form_respo(request) :
                 if input2 == '' or input3 == '' :
                     return HttpResponse('Veuillez indiquer un mail et une adresse')
 
-                new_respo = Responsable(resp_nom=input1, resp_prenom=input2, adresse_professionnelle=input4, mail=input3, responsabilite=input5)
+                new_respo = Responsable(resp_nom=input1, resp_prenom=input2, adresse_professionnelle=input4, mail=input3, responsabilite=responsabilite)
                 new_respo.save()
 
             return accueil_respo(request, input1, input2)

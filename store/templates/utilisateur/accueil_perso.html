@@ -55,7 +55,6 @@
               <th>Date de début</th>
               <th>Date de fin</th>
               <th>Localisation</th>
-              <th>Inscription</th>
           </tr>
       </thead>
       <tbody>
@@ -66,11 +65,6 @@
                 <td>{{ workshop.date_de_debut }}</td>
                 <td>{{ workshop.date_de_fin }}</td>
                 <td>{{ workshop.loc_ville }}, {{ conf.loc_pays }}</td>
-                <td>
-                  <a href="{% url 'inscription' conf_intitule=workshop.wk_intitule id_util=utilisateur.id_util %}">
-                    <h3>S'inscrire</h3>
-                  </a>
-                </td>
             </tr>
   {% endfor %}
       </tbody>
