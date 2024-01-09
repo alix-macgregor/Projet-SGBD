@@ -1,8 +1,9 @@
+# Importation
 from django.utils import timezone
 from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import render
-from store.models import Conference, Inscription, Organisateur, Organise, ProgramCommitee, Responsabilite, Responsable, ResponsableDe, Session, Utilisateur, Workshop, Soumission
+from django.shortcuts import redirect, render
+from store.models import CategorieDeSoumission, Conference, Evaluation, Inscription, Organisateur, Organise, ProgramCommitee, Responsabilite, Responsable, ResponsableDe, Session, Utilisateur, Workshop, Soumission
 
 # Vue qui permettent de séparer les différents types d'utilisateurs :
 def index(request) :
@@ -190,13 +191,51 @@ def process_form_orga(request) :
     else:
         return HttpResponse('Invalid request method')
 
-# Affiche la conférence qu'il organise
-def accueil_orga(request, orga_nom) :
+# Ajouter des conférences :
+def ajouter_conf(request, orga_nom) :
+    return render(request, 'organisateur/nouvelle_conf.html', context={'orga_nom':orga_nom})
+
+def nouvelle_conf(request, orga_nom) :
     orga = Organisateur.objects.filter(orga_nom=orga_nom)[0]
 
-    conf = Conference.objects.filter(conf_intitule=orga.conf_intitule)[0]
+    if request.method == 'POST' :
+        input1 = request.POST.get('conf_intitule')
+        input2 = request.POST.get('text_introductif')
+        input3 = request.POST.get('serie')
+        input4 = request.POST.get('editeur_acte')
+        input5 = request.POST.get('date_de_debut')
+        input6 = request.POST.get('date_de_fin')
+        input7 = request.POST.get('loc_ville')
+        input8 = request.POST.get('loc_pays')
 
-    return render(request, 'organisateur/accueil_perso.html', context={"organisateur":orga, "confs":[conf]})
+        nouvelle_conf = Conference(conf_intitule=input1,
+                                   text_introductif=input2,
+                                   serie=input3,
+                                   editeur_actes=input4,
+                                   date_de_debut=input5,
+                                   date_de_fin=input6,
+                                   loc_ville=input7,
+                                   loc_pays=input8
+                                   )
+        nouvelle_conf.save()
+
+        nouvel_orga = Organisateur(orga_nom=orga_nom, mail=orga.mail, adresse=orga.adresse, conf_intitule=nouvelle_conf)
+        nouvel_orga.save()
+
+        return accueil_orga(request, orga_nom)
+
+    else :
+        return HttpResponse('Invalid request method')
+
+# Affiche les conférences qu'il organise
+def accueil_orga(request, orga_nom) :
+    orgas = Organisateur.objects.filter(orga_nom=orga_nom)
+
+    confs = [Conference.objects.filter(conf_intitule=orga.conf_intitule)[0] for orga in orgas]
+
+    orga = orgas[0]
+
+    return render(request, 'organisateur/accueil_perso.html', context={"organisateur":orga, "confs":confs})
 
 # Permet d'afficher la liste de tous les inscrits pour une conférence
 def inscrits(request, conf_intitule) :
@@ -227,6 +266,7 @@ def responsables(request, conf_intitule) :
 
     return render(request, 'organisateur/responsables.html', context={'conf':conf_intitule, 'responsables': liste_respo, 'pc':liste_pc})
 
+# Permet d'ajouter des responsables dans une conférence
 def ajouter(request, conf_intitule) :
     return render(request, 'organisateur/ajouter.html', context={'conf':conf_intitule})
 
@@ -240,8 +280,11 @@ def process_form_ajout(request, conf_intitule) :
 
         input5 = request.POST.get('select')
 
+        # On sépare les programme commitee du reste
         if input5 == "Programme Commitee" :
             respo = ProgramCommitee.objects.filter(pc_nom=input1, pc_prenom=input2)
+
+            # On vérifie que le responsable existe
             if len(respo) == 0 :
                 input3 = request.POST.get('email')
                 input4 = request.POST.get('adresse')
@@ -259,6 +302,7 @@ def process_form_ajout(request, conf_intitule) :
                 return accueil_orga(request, orga.orga_nom)
 
             else :
+                # On vérifie que le responsable n'est pas déjà responsable de cette conférence
                 respo = respo[0]
                 deja_respo = False
 
@@ -276,6 +320,7 @@ def process_form_ajout(request, conf_intitule) :
                     return accueil_orga(request, orga.orga_nom)
 
         else :
+            # Et on fait la même chose avec les autres responsables
             respo = Responsable.objects.filter(resp_nom=input1, resp_prenom=input2)
             responsabilite = Responsabilite(responsabilite=input5)
             if len(respo) == 0 :
@@ -355,7 +400,7 @@ def process_form_respo(request) :
     else:
         return HttpResponse('Invalid request method')
 
-
+# Encore une fois on diférencie les responsables lambda et les programmes commitees
 def accueil_respo(request, respo_nom, respo_prenom) :
     respo = Responsable.objects.filter(resp_nom=respo_nom, resp_prenom=respo_prenom)[0]
 
@@ -378,7 +423,7 @@ def accueil_prog(request, pc_nom, pc_prenom) :
 
     return render(request, 'responsable/accueil_pc.html', context={"responsable":respo, "confs":confs})
 
-
+# Permet de donner la liste des soumissions
 def soumission(request, conf_intitule):
     sess = Session.objects.filter(conf_intitule=conf_intitule)
 
@@ -393,17 +438,52 @@ def soumission(request, conf_intitule):
 
     return render(request, 'responsable/soumission.html', context={'conf_intitule':conf_intitule, 'soumissions':tot_soumi})
 
-def changer_etat(request, soumi_intitule) :
-    return render(request, 'responsable/changer_etat.html', context={'soumi_intitule':soumi_intitule})
+# Permettent de changer l'état des soumissions
+def changer_etat(request, soumi_intitule, id_prog_commitee) :
+    return render(request, 'responsable/changer_etat.html', context={'soumi_intitule':soumi_intitule, 'id_prog_commitee':id_prog_commitee})
 
-def changer_etat_2(request, soumi_intitule) :
+def changer_etat_2(request, soumi_intitule, id_prog_commitee) :
     soumi = Soumission.objects.filter(soumi_intitule=soumi_intitule)[0]
+    prog = ProgramCommitee.objects.filter(id_prog_commitee=id_prog_commitee)[0]
 
     if request.method == 'POST' :
         input = request.POST.get('select')
+
         soumi.etat = input
         soumi.save()
+
+        eval = Evaluation(soumi_intitule=soumi, prog_commitee=prog)
+        eval.save()
         return HttpResponse('Bien pris en compte')
+
+    else :
+        return HttpResponse('Invalid request method')
+
+""" Espace d'ajout des soumissions"""
+# doit être présent pour chaque type de personne => on met le bouton dans le template accueil
+def soumettre(request) :
+    sessions = Session.objects.all()
+    categories = CategorieDeSoumission.objects.all()
+    return render(request, 'store/soumission.html', context={'sessions':sessions, 'categories':categories})
+
+def nouvelle_soumi(request) :
+    if request.method == 'POST' :
+        input1 = request.POST.get('soumi_intitule')
+        input2 = request.POST.get('select')
+        input3 = request.POST.get('select2')
+
+        session = Session.objects.filter(sess_intitule=input2)[0]
+        categorie = CategorieDeSoumission.objects.filter(categorie=input3)[0]
+
+        nouvelle_soumission = Soumission(soumi_intitule=input1,
+                                   session_intitule=session,
+                                   date_de_soumission = timezone.now(),
+                                   categorie=categorie,
+                                   etat='En attente'
+                                   )
+        nouvelle_soumission.save()
+
+        return index(request)
 
     else :
         return HttpResponse('Invalid request method')

@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from store.views import ajouter, index, inscrits, nouvelle_conf_orga, process_form, process_form_ajout, process_form_orga, process_type_util, inscription, recherche, nouvelle_conf_orga, process_form_respo, responsables, soumission, changer_etat, changer_etat_2
+from store.views import ajouter, ajouter_conf, index, inscrits, nouvelle_conf, nouvelle_conf_orga, nouvelle_soumi, process_form, process_form_ajout, process_form_orga, process_type_util, inscription, recherche, nouvelle_conf_orga, process_form_respo, responsables, soumettre, soumission, changer_etat, changer_etat_2
 
 urlpatterns = [
     # url pour les administrateur du site
@@ -25,6 +25,8 @@ urlpatterns = [
     # urls communes à tout type de personnes (orga, util, respo, prog comité)
     path('', index, name='index'),
     path('process_type', process_type_util, name="process_type"),
+    path('soumission', soumettre, name='soumettre'),
+    path('nouvelle_soumi', nouvelle_soumi, name='nouvelle_soumi'),
 
     # urls spécifiques aux utilisateurs
     path('utilisateur/process_form', process_form, name = 'process_form'),
@@ -34,6 +36,8 @@ urlpatterns = [
     # urls spécifiques aux organisateurs
     path('organisateur/process_form_orga', process_form_orga, name = 'process_form_orga'),
     path('organisateur/nouvelle_conférence/<str:orga_nom>/<str:mail>/<str:adresse>', nouvelle_conf_orga, name='nouvelle_conf_orga'),
+    path('organisateur/ajouter_conf/<str:orga_nom>', ajouter_conf, name='ajouter_conf'),
+    path('organisateur/nouvelle_conf/<str:orga_nom>', nouvelle_conf, name='nouvelle_conf'),
     path('organisateur/inscrits/<str:conf_intitule>', inscrits, name='inscrits'),
     path('organisateur/responsables/<str:conf_intitule>', responsables, name='responsables'),
     path('organisateur/ajouter/<str:conf_intitule>', ajouter, name = 'ajouter'),

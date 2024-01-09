@@ -1,0 +1,29 @@
+{% extends 'accueil.html' %}
+
+{% block content %}
+<section id="nouvelle conference">
+  <h2>Nouvelle Soumission</h2>
+  <form action="{% url 'nouvelle_soumi' %}" method="post">
+    {% csrf_token %}
+
+    <label for="intitule">L'intitulé de votre soumission :</label>
+    <input type="text" id="conf_intitule" name="soumi_intitule" required>
+
+    <h3>Session</h3>
+    <select class="dropdown" name="select">
+      {% for session in sessions %}
+      <option value="{{ session.sess_intitule }}">{{ session.sess_intitule }}</option>
+      {% endfor %}
+  </select>
+
+  <h3>Catégorie</h3>
+  <select class="dropdown" name="select2">
+    {% for cat in categories %}
+    <option value="{{ cat.categorie }}">{{ cat.categorie }}</option>
+    {% endfor %}
+</select>
+
+    <button type="submit">Se connecter</button>
+  </form>
+  </section>
+{% endblock %}
