@@ -2,7 +2,7 @@ from django.utils import timezone
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
-from store.models import Conference, Inscription, Organisateur, Organise, ProgramCommitee, Responsable, ResponsableDe, Session, Utilisateur, Workshop, Soumission
+from store.models import Conference, Inscription, Organisateur, Organise, ProgramCommitee, Responsabilite, Responsable, ResponsableDe, Session, Utilisateur, Workshop, Soumission
 
 # Vue qui permettent de séparer les différents types d'utilisateurs :
 def index(request) :
@@ -232,6 +232,7 @@ def ajouter(request, conf_intitule) :
 
 def process_form_ajout(request, conf_intitule) :
     conf = Conference.objects.filter(conf_intitule=conf_intitule)[0]
+    orga = Organisateur.objects.filter(conf_intitule=conf_intitule)[0]
 
     if request.method == 'POST' :
         input1 = request.POST.get('name')
@@ -255,7 +256,10 @@ def process_form_ajout(request, conf_intitule) :
                 new_organise = Organise(conf_intitule=conf, prog_commitee=new_respo)
                 new_organise.save()
 
+                return accueil_orga(request, orga.orga_nom)
+
             else :
+                respo = respo[0]
                 deja_respo = False
 
                 for tuple in Organise.objects.values_list('conf_intitule', 'prog_commitee') :
@@ -269,10 +273,11 @@ def process_form_ajout(request, conf_intitule) :
                     new_organise = Organise(conf_intitule=conf, prog_commitee=respo)
                     new_organise.save()
 
-            return HttpResponse('Le responsable a été ajouté')
+                    return accueil_orga(request, orga.orga_nom)
 
         else :
             respo = Responsable.objects.filter(resp_nom=input1, resp_prenom=input2)
+            responsabilite = Responsabilite(responsabilite=input5)
             if len(respo) == 0 :
                 input3 = request.POST.get('email')
                 input4 = request.POST.get('adresse')
@@ -280,17 +285,20 @@ def process_form_ajout(request, conf_intitule) :
                 if input2 == '' or input3 == '' :
                     return HttpResponse('Veuillez indiquer un mail et une adresse')
 
-                new_respo = Responsable(resp_nom=input1, resp_prenom=input2, adresse_professionnelle=input4, mail=input3, responsabilite=input5)
+                new_respo = Responsable(resp_nom=input1, resp_prenom=input2, adresse_professionnelle=input4, mail=input3, responsabilite=responsabilite)
                 new_respo.save()
 
                 new_organise = ResponsableDe(conf_intitule=conf, responsable=new_respo)
                 new_organise.save()
 
+                return accueil_orga(request, orga.orga_nom)
+
             else :
+                respo = respo[0]
                 deja_respo = False
 
                 for tuple in ResponsableDe.objects.values_list('conf_intitule', 'responsable') :
-                    if (conf_intitule, respo.id_prog_commitee) == tuple :
+                    if (conf_intitule, respo.id_resp) == tuple :
                         deja_respo = True
 
                 if deja_respo :
@@ -300,31 +308,10 @@ def process_form_ajout(request, conf_intitule) :
                     new_organise = Organise(conf_intitule=conf, prog_commitee=respo)
                     new_organise.save()
 
-
-            return HttpResponse('Le responsable a été ajouté')
+                    return accueil_orga(request, orga.orga_nom)
 
     else:
         return HttpResponse('Invalid request method')
-
-
-def devenir_resp(request, conf_intitule, id_resp) :
-    conf = Conference.objects.filter(conf_intitule=conf_intitule)[0]
-    respo = Responsable.objects.filter(id_resp=id_resp)[0]
-
-    deja_respo = False
-
-    for tuple in ResponsableDe.objects.values_list('conf_intitule', 'responsable') :
-        if (conf_intitule, id_resp) == tuple :
-            deja_respo = True
-
-    if not deja_respo :
-        responsable_de = ResponsableDe(conf_intitule=conf, responsable=respo)
-        responsable_de.save()
-
-        return render(request, 'responsable/organisation.html')
-
-    else :
-        return HttpResponse('Vous organisez déjà cette conférence')
 
 
 """ Espace Responsables """
@@ -417,7 +404,6 @@ def changer_etat_2(request, soumi_intitule) :
         soumi.etat = input
         soumi.save()
         return HttpResponse('Bien pris en compte')
-
 
     else :
         return HttpResponse('Invalid request method')

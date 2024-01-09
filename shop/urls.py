@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from store.views import ajouter, devenir_resp, index, inscrits, nouvelle_conf_orga, process_form, process_form_ajout, process_form_orga, process_type_util, inscription, recherche, nouvelle_conf_orga, process_form_respo, responsables, soumission, changer_etat, changer_etat_2
+from store.views import ajouter, index, inscrits, nouvelle_conf_orga, process_form, process_form_ajout, process_form_orga, process_type_util, inscription, recherche, nouvelle_conf_orga, process_form_respo, responsables, soumission, changer_etat, changer_etat_2
 
 urlpatterns = [
     # url pour les administrateur du site
@@ -37,7 +37,7 @@ urlpatterns = [
     path('organisateur/inscrits/<str:conf_intitule>', inscrits, name='inscrits'),
     path('organisateur/responsables/<str:conf_intitule>', responsables, name='responsables'),
     path('organisateur/ajouter/<str:conf_intitule>', ajouter, name = 'ajouter'),
-    path('organisateur/ajouter/<str:conf_intitule>', process_form_ajout, name = 'process_form_ajout'),
+    path('organisateur/ajouter2/<str:conf_intitule>', process_form_ajout, name = 'process_form_ajout'),
 
     # urls spécifiques aux responsables
     path('responsable/process_form_respo', process_form_respo, name= 'process_form_respo'),
