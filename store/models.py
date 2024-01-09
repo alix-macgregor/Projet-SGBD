@@ -30,7 +30,7 @@ class CategorieDeSoumission(models.Model):
     mep_type_de_logiciel = models.CharField(db_column='Mep_Type_de_logiciel', max_length=10)  # Field name made lowercase.
     date_limite_de_soumission_en_jours_avant_la_conference= models.IntegerField(db_column='Date_limite_de_soumission')  # Field name made lowercase.
     delai_de_notification_apres_soummission= models.IntegerField(db_column='Delai_de_notification')  # Field name made lowercase.
-    date_limite_de_correction_avant_conference = models.IntegerField(db_column='Date_limite_de_correction_avant_conference')  # Field name made lowercase.
+    date_limite_correction_avant_conference = models.IntegerField(db_column='Date_limite_de_correction_avant_conference')  # Field name made lowercase.
 
     class Meta:
         managed = True
