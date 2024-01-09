@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models.deletion import CASCADE
+from django.db.models.deletion import CASCADE, DO_NOTHING
 
 # Create your models here.
 
@@ -58,11 +58,11 @@ class Conference(models.Model):
 
 
 class Evaluation(models.Model):
-    soumi_intitule = models.ForeignKey("Soumission", models.CASCADE, db_column="Soumi_intitule")
+    soumi_intitule = models.ForeignKey("Soumission", models.DO_NOTHING, db_column="Soumi_intitule")
     # Champs déjà présents dans la table 'Progam_Commitee'
-    # pc_nom = models.ForeignKey('ProgramCommitee', models.CASCADE, db_column='PC_nom')  # Field name made lowercase.
-    # pc_prenom = models.ForeignKey('ProgramCommitee', models.CASCADE, db_column='PC_prenom', to_field='pc_prenom', related_name='evaluation_pc_prenom_set')  # Field name made lowercase.
-    prog_commitee = models.ForeignKey("ProgramCommitee", models.CASCADE, db_column="prog_commitee")
+    # pc_nom = models.ForeignKey('ProgramCommitee', models.DO_NOTHING, db_column='PC_nom')  # Field name made lowercase.
+    # pc_prenom = models.ForeignKey('ProgramCommitee', models.DO_NOTHING, db_column='PC_prenom', to_field='pc_prenom', related_name='evaluation_pc_prenom_set')  # Field name made lowercase.
+    prog_commitee = models.ForeignKey("ProgramCommitee", models.DO_NOTHING, db_column="prog_commitee")
 
     class Meta:
         managed = True
@@ -75,11 +75,11 @@ class Evaluation(models.Model):
         return str(self.soumi_intitule) + " -- " + str(self.prog_commitee)
 
 class Inscription(models.Model):
-    conf_intitule = models.ForeignKey(Conference, models.CASCADE, db_column="Conf_intitule")
+    conf_intitule = models.ForeignKey(Conference, models.DO_NOTHING, db_column="Conf_intitule")
     # Pas besoin de ces champs car ils sont déjà dans 'Utilisateur'
-    # util_nom = models.ForeignKey('Utilisateur', models.CASCADE, db_column='Util_nom')  # Field name made lowercase.
-    # util_prenom = models.ForeignKey('Utilisateur', models.CASCADE, db_column='Util_prenom', to_field='util_prenom', related_name='inscription_util_prenom_set')  # Field name made lowercase.
-    utilisateur = models.ForeignKey(Utilisateur, models.CASCADE, db_column="utilisateur")
+    # util_nom = models.ForeignKey('Utilisateur', models.DO_NOTHING, db_column='Util_nom')  # Field name made lowercase.
+    # util_prenom = models.ForeignKey('Utilisateur', models.DO_NOTHING, db_column='Util_prenom', to_field='util_prenom', related_name='inscription_util_prenom_set')  # Field name made lowercase.
+    utilisateur = models.ForeignKey(Utilisateur, models.DO_NOTHING, db_column="utilisateur")
 
     class Meta:
         managed = True
@@ -94,7 +94,7 @@ class Inscription(models.Model):
 
 class Organisateur(models.Model):
     orga_nom = models.CharField(db_column='Orga_nom', max_length=20)  # Field name made lowercase.
-    conf_intitule = models.ForeignKey(Conference, models.CASCADE, db_column='Conf_intitule')  # Field name made lowercase.
+    conf_intitule = models.ForeignKey(Conference, models.DO_NOTHING, db_column='Conf_intitule')  # Field name made lowercase.
     adresse = models.CharField(db_column='Adresse', max_length=50)  # Field name made lowercase.
     mail = models.CharField(db_column='Mail', max_length=30)  # Field name made lowercase.
 
@@ -109,11 +109,11 @@ class Organisateur(models.Model):
         return self.orga_nom
 
 class Organise(models.Model):
-    conf_intitule = models.ForeignKey(Conference, models.CASCADE, db_column="Conf_intitule")
+    conf_intitule = models.ForeignKey(Conference, models.DO_NOTHING, db_column="Conf_intitule")
     # Ces champs figures déjà dans la table 'Programm_Comitee'
-    # pc_nom = models.ForeignKey('ProgramCommitee', models.CASCADE, db_column='PC_nom')  # Field name made lowercase.
-    # pc_prenom = models.ForeignKey('ProgramCommitee', models.CASCADE, db_column='PC_prenom', to_field='pc_prenom', related_name='organise_pc_prenom_set')  # Field name made lowercase.
-    prog_commitee = models.ForeignKey("ProgramCommitee", models.CASCADE, db_column="prog_commitee")
+    # pc_nom = models.ForeignKey('ProgramCommitee', models.DO_NOTHING, db_column='PC_nom')  # Field name made lowercase.
+    # pc_prenom = models.ForeignKey('ProgramCommitee', models.DO_NOTHING, db_column='PC_prenom', to_field='pc_prenom', related_name='organise_pc_prenom_set')  # Field name made lowercase.
+    prog_commitee = models.ForeignKey("ProgramCommitee", models.DO_NOTHING, db_column="prog_commitee")
 
     class Meta:
         managed = True
@@ -159,7 +159,7 @@ class Responsable(models.Model):
     resp_prenom = models.CharField(db_column="Resp_prenom", max_length=30)  # Field name made lowercase.
     adresse_professionnelle = models.CharField(db_column="Adresse_Professionnelle", max_length=50)  # Field name made lowercase.
     mail = models.CharField(db_column="Mail", max_length=30)  # Field name made lowercase.
-    responsabilite = models.ForeignKey(Responsabilite, models.CASCADE, db_column="Responsabilite")  # Field name made lowercase.
+    responsabilite = models.ForeignKey(Responsabilite, models.DO_NOTHING, db_column="Responsabilite")  # Field name made lowercase.
 
     class Meta:
         managed = True
@@ -172,11 +172,11 @@ class Responsable(models.Model):
         return self.resp_nom + ' ' + self.resp_prenom + ' --- ' + str(self.responsabilite)
 
 class ResponsableDe(models.Model):
-    conf_intitule = models.ForeignKey(Conference, models.CASCADE, db_column="Conf_intitule")
+    conf_intitule = models.ForeignKey(Conference, models.DO_NOTHING, db_column="Conf_intitule")
     # Ces champs sont déjà dans la table 'Reponsable'
-    # resp_nom = models.ForeignKey(Responsable, models.CASCADE, db_column='Resp_nom')  # Field name made lowercase.
-    # resp_prenom = models.ForeignKey(Responsable, models.CASCADE, db_column='Resp_prenom', to_field='resp_prenom', related_name='responsablede_resp_prenom_set')  # Field name made lowercase.
-    responsable = models.ForeignKey(Responsable, models.CASCADE, db_column="responsable")
+    # resp_nom = models.ForeignKey(Responsable, models.DO_NOTHING, db_column='Resp_nom')  # Field name made lowercase.
+    # resp_prenom = models.ForeignKey(Responsable, models.DO_NOTHING, db_column='Resp_prenom', to_field='resp_prenom', related_name='responsablede_resp_prenom_set')  # Field name made lowercase.
+    responsable = models.ForeignKey(Responsable, models.DO_NOTHING, db_column="responsable")
 
     class Meta:
         managed = True
@@ -192,7 +192,7 @@ class ResponsableDe(models.Model):
 class Session(models.Model):
     sess_intitule = models.CharField(db_column="Sess_intitule", primary_key=True, max_length=100)  # Field name made lowercase.
     themes = models.CharField(db_column="Themes", max_length=100)  # Field name made lowercase.
-    conf_intitule = models.ForeignKey(Conference, models.CASCADE, db_column="Conf_intitule")  # Field name made lowercase.
+    conf_intitule = models.ForeignKey(Conference, models.DO_NOTHING, db_column="Conf_intitule")  # Field name made lowercase.
 
     class Meta:
         managed = True
@@ -204,12 +204,12 @@ class Session(models.Model):
 class Soumission(models.Model):
     soumi_intitule = models.CharField(db_column='Soumi_intitule', primary_key=True, max_length=100)  # Field name made lowercase.
     date_de_soumission = models.DateField(db_column='Date_de_soumission')  # Field name made lowercase.
-    session_intitule = models.ForeignKey(Session, models.CASCADE, db_column='session_intitule')
+    session_intitule = models.ForeignKey(Session, models.DO_NOTHING, db_column='session_intitule')
     etat = models.CharField(db_column='Etat', max_length=10 )
-    categorie =  models.ForeignKey(CategorieDeSoumission, models.CASCADE, db_column='categorie')
+    categorie =  models.ForeignKey(CategorieDeSoumission, models.DO_NOTHING, db_column='categorie')
     # champs déjà renseignés dans la table 'Utilisateur'
-    # util_nom = models.ForeignKey('Utilisateur', models.CASCADE, db_column='Util_nom')  # Field name made lowercase.
-    # util_prenom = models.ForeignKey('Utilisateur', models.CASCADE, db_column='Util_prenom', to_field='util_prenom', related_name='soumission_util_prenom_set')  # Field name made lowercase.
+    # util_nom = models.ForeignKey('Utilisateur', models.DO_NOTHING, db_column='Util_nom')  # Field name made lowercase.
+    # util_prenom = models.ForeignKey('Utilisateur', models.DO_NOTHING, db_column='Util_prenom', to_field='util_prenom', related_name='soumission_util_prenom_set')  # Field name made lowercase.
 
     class Meta:
         managed = True
@@ -220,7 +220,7 @@ class Soumission(models.Model):
 
 
 class Workshop(models.Model):
-    wk_intitule = models.OneToOneField(Soumission, models.CASCADE, db_column='wk_intitule', primary_key=True)  # Field name made lowercase.
+    wk_intitule = models.OneToOneField(Soumission, models.DO_NOTHING, db_column='wk_intitule', primary_key=True)  # Field name made lowercase.
     date_de_debut = models.DateField(db_column='Date_de_debut')  # Field name made lowercase.
     date_de_fin = models.DateField(db_column='Date_de_fin')  # Field name made lowercase.
     loc_ville = models.CharField(db_column='Loc_Ville', max_length=15)  # Field name made lowercase.
@@ -228,7 +228,7 @@ class Workshop(models.Model):
     serie = models.CharField(db_column='Serie', max_length=10)  # Field name made lowercase.
     text_introductif = models.TextField(db_column='Text_introductif')  # Field name made lowercase.
     editeur_actes = models.CharField(db_column='Editeur_actes', max_length=30)  # Field name made lowercase.
-    conf_intitule = models.ForeignKey(Conference, models.CASCADE, db_column='Conf_intitule')  # Field name made lowercase.
+    conf_intitule = models.ForeignKey(Conference, models.DO_NOTHING, db_column='Conf_intitule')  # Field name made lowercase.
 
     class Meta:
         managed = True
