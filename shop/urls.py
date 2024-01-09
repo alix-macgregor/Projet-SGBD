@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from store.views import index, inscrits, nouvelle_conf_orga, process_form, process_form_orga, process_type_util, inscription, recherche, nouvelle_conf_orga
+from store.views import ajouter, devenir_resp, index, inscrits, nouvelle_conf_orga, process_form, process_form_ajout, process_form_orga, process_type_util, inscription, recherche, nouvelle_conf_orga, process_form_respo, responsables, soumission, changer_etat, changer_etat_2
 
 urlpatterns = [
     # url pour les administrateur du site
@@ -31,9 +31,18 @@ urlpatterns = [
     path('utilisateur/inscription/<str:conf_intitule>/<int:id_util>', inscription, name='inscription'),
     path('utilisateur/recherche/<int:id_util>', recherche, name='recherche'),
 
-    # urls spécifique aux organisateurs
+    # urls spécifiques aux organisateurs
     path('organisateur/process_form_orga', process_form_orga, name = 'process_form_orga'),
     path('organisateur/nouvelle_conférence/<str:orga_nom>/<str:mail>/<str:adresse>', nouvelle_conf_orga, name='nouvelle_conf_orga'),
     path('organisateur/inscrits/<str:conf_intitule>', inscrits, name='inscrits'),
+    path('organisateur/responsables/<str:conf_intitule>', responsables, name='responsables'),
+    path('organisateur/ajouter/<str:conf_intitule>', ajouter, name = 'ajouter'),
+    path('organisateur/ajouter/<str:conf_intitule>', process_form_ajout, name = 'process_form_ajout'),
+
+    # urls spécifiques aux responsables
+    path('responsable/process_form_respo', process_form_respo, name= 'process_form_respo'),
+    path('responsable/soumissions/<str:conf_intitule>', soumission, name='soumissions'),
+    path('responsable/changer_etat/<str:soumi_intitule>', changer_etat, name='changer_etat'),
+    path('responsable/changer_etat2/<str:soumi_intitule>', changer_etat_2, name='changer_etat_2'),
 
 ]

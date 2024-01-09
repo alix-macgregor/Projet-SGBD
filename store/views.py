@@ -2,7 +2,7 @@ from django.utils import timezone
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
-from store.models import Conference, Inscription, Organisateur, Organise, Session, Utilisateur, Workshop
+from store.models import Conference, Inscription, Organisateur, Organise, ProgramCommitee, Responsable, ResponsableDe, Session, Utilisateur, Workshop, Soumission
 
 # Vue qui permettent de séparer les différents types d'utilisateurs :
 def index(request) :
@@ -110,20 +110,20 @@ def inscription(request, conf_intitule, id_util) :
 
     deja_inscrit = False
 
-    themes = []
-    for sess in session :
-        for theme in sess.themes.split(', ') :
-            if theme not in themes :
-                themes.append(theme)
-
-    util.profil = ', '.join(themes)
-    util.save()
-
     for tuple in Inscription.objects.values_list('conf_intitule', 'utilisateur') :
         if (conf_intitule, id_util) == tuple :
             deja_inscrit = True
 
     if not deja_inscrit :
+        themes = []
+        for sess in session :
+            for theme in sess.themes.split(', ') :
+                if theme not in themes :
+                    themes.append(theme)
+
+        util.profil = ', '.join(themes)
+        util.save()
+
         inscri = Inscription()
         inscri.conference = Conference.objects.filter(conf_intitule=conf_intitule)[0]
         inscri.utilisateur = Utilisateur.objects.filter(id_util=id_util)[0]
@@ -135,7 +135,7 @@ def inscription(request, conf_intitule, id_util) :
         return HttpResponse('Vous êtes déjà inscrit.e')
 
 """ Espace Organisateur"""
-# Crée un nouvel orga en forçant la création d'un conférence associée :
+# Crée un nouvel orga en forçant la création d'une conférence associée :
 def new_orga(request, orga_nom, mail, adresse, conf_intitule) :
     conf = Conference.objects.filter(conf_intitule=conf_intitule)[0]
     nouvel_orga = Organisateur(orga_nom=orga_nom, mail=mail, adresse=adresse, conf_intitule=conf)
@@ -190,6 +190,7 @@ def process_form_orga(request) :
     else:
         return HttpResponse('Invalid request method')
 
+# Affiche la conférence qu'il organise
 def accueil_orga(request, orga_nom) :
     orga = Organisateur.objects.filter(orga_nom=orga_nom)[0]
 
@@ -212,3 +213,211 @@ def inscrits(request, conf_intitule) :
 
     else :
         return HttpResponse("Pas d'inscrits")
+
+# Permet d'accéder à la liste des responsables
+def responsables(request, conf_intitule) :
+    organise = Organise.objects.filter(conf_intitule=conf_intitule)
+    responsable_de = ResponsableDe.objects.filter(conf_intitule=conf_intitule)
+
+    liste_pc_id = [pc.prog_commitee for pc in organise]
+    liste_respo_id = [respo.responsable for respo in responsable_de]
+
+    liste_pc = [ProgramCommitee.objects.filter(id_prog_commitee=pc.id_prog_commitee)[0] for pc in liste_pc_id]
+    liste_respo = [Responsable.objects.filter(id_resp=respo.id_resp)[0] for respo in liste_respo_id]
+
+    return render(request, 'organisateur/responsables.html', context={'conf':conf_intitule, 'responsables': liste_respo, 'pc':liste_pc})
+
+def ajouter(request, conf_intitule) :
+    return render(request, 'organisateur/ajouter.html', context={'conf':conf_intitule})
+
+def process_form_ajout(request, conf_intitule) :
+    conf = Conference.objects.filter(conf_intitule=conf_intitule)[0]
+
+    if request.method == 'POST' :
+        input1 = request.POST.get('name')
+        input2 = request.POST.get('surname')
+
+        input5 = request.POST.get('select')
+
+        if input5 == "Programme Commitee" :
+            respo = ProgramCommitee.objects.filter(pc_nom=input1, pc_prenom=input2)
+            if len(respo) == 0 :
+                input3 = request.POST.get('email')
+                input4 = request.POST.get('adresse')
+
+                if input2 == '' or input3 == '' :
+                    return HttpResponse('Veuillez indiquer un mail et une adresse')
+
+
+                new_respo = ProgramCommitee(pc_nom=input1, pc_prenom=input2, adresse_professionnelle=input4, mail=input3)
+                new_respo.save()
+
+                new_organise = Organise(conf_intitule=conf, prog_commitee=new_respo)
+                new_organise.save()
+
+            else :
+                deja_respo = False
+
+                for tuple in Organise.objects.values_list('conf_intitule', 'prog_commitee') :
+                    if (conf_intitule, respo.id_prog_commitee) == tuple :
+                        deja_respo = True
+
+                if deja_respo :
+                    return HttpResponse('Cette personne est déjà responsable')
+
+                else :
+                    new_organise = Organise(conf_intitule=conf, prog_commitee=respo)
+                    new_organise.save()
+
+            return HttpResponse('Le responsable a été ajouté')
+
+        else :
+            respo = Responsable.objects.filter(resp_nom=input1, resp_prenom=input2)
+            if len(respo) == 0 :
+                input3 = request.POST.get('email')
+                input4 = request.POST.get('adresse')
+
+                if input2 == '' or input3 == '' :
+                    return HttpResponse('Veuillez indiquer un mail et une adresse')
+
+                new_respo = Responsable(resp_nom=input1, resp_prenom=input2, adresse_professionnelle=input4, mail=input3, responsabilite=input5)
+                new_respo.save()
+
+                new_organise = ResponsableDe(conf_intitule=conf, responsable=new_respo)
+                new_organise.save()
+
+            else :
+                deja_respo = False
+
+                for tuple in ResponsableDe.objects.values_list('conf_intitule', 'responsable') :
+                    if (conf_intitule, respo.id_prog_commitee) == tuple :
+                        deja_respo = True
+
+                if deja_respo :
+                    return HttpResponse('Cette personne est déjà responsable')
+
+                else :
+                    new_organise = Organise(conf_intitule=conf, prog_commitee=respo)
+                    new_organise.save()
+
+
+            return HttpResponse('Le responsable a été ajouté')
+
+    else:
+        return HttpResponse('Invalid request method')
+
+
+def devenir_resp(request, conf_intitule, id_resp) :
+    conf = Conference.objects.filter(conf_intitule=conf_intitule)[0]
+    respo = Responsable.objects.filter(id_resp=id_resp)[0]
+
+    deja_respo = False
+
+    for tuple in ResponsableDe.objects.values_list('conf_intitule', 'responsable') :
+        if (conf_intitule, id_resp) == tuple :
+            deja_respo = True
+
+    if not deja_respo :
+        responsable_de = ResponsableDe(conf_intitule=conf, responsable=respo)
+        responsable_de.save()
+
+        return render(request, 'responsable/organisation.html')
+
+    else :
+        return HttpResponse('Vous organisez déjà cette conférence')
+
+
+""" Espace Responsables """
+# Permet à un responsable de se connecter aux conférences qu'il organise et diférencie les responsables lambda des programme commitee
+def process_form_respo(request) :
+    if request.method == 'POST' :
+        input1 = request.POST.get('name')
+        input2 = request.POST.get('surname')
+
+        input5 = request.POST.get('select')
+
+        if input5 == "Programme Commitee" :
+            respo = ProgramCommitee.objects.filter(pc_nom=input1, pc_prenom=input2)
+            if len(respo) == 0 :
+                input3 = request.POST.get('email')
+                input4 = request.POST.get('adresse')
+
+                if input2 == '' or input3 == '' :
+                    return HttpResponse('Veuillez indiquer un mail et une adresse')
+
+
+                new_respo = ProgramCommitee(pc_nom=input1, pc_prenom=input2, adresse_professionnelle=input4, mail=input3)
+                new_respo.save()
+
+            return accueil_prog(request, input1, input2)
+
+        else :
+            respo = Responsable.objects.filter(resp_nom=input1, resp_prenom=input2)
+            if len(respo) == 0 :
+                input3 = request.POST.get('email')
+                input4 = request.POST.get('adresse')
+
+                if input2 == '' or input3 == '' :
+                    return HttpResponse('Veuillez indiquer un mail et une adresse')
+
+                new_respo = Responsable(resp_nom=input1, resp_prenom=input2, adresse_professionnelle=input4, mail=input3, responsabilite=input5)
+                new_respo.save()
+
+            return accueil_respo(request, input1, input2)
+
+    else:
+        return HttpResponse('Invalid request method')
+
+
+def accueil_respo(request, respo_nom, respo_prenom) :
+    respo = Responsable.objects.filter(resp_nom=respo_nom, resp_prenom=respo_prenom)[0]
+
+    tot_confs = ResponsableDe.objects.filter(responsable=respo.id_resp)
+
+    confs_intitule = [conf.conf_intitule for conf in tot_confs]
+
+    confs = [Conference.objects.filter(conf_intitule=conf)[0] for conf in confs_intitule]
+
+    return render(request, 'responsable/accueil_respo.html', context={"responsable":respo, "confs":confs})
+
+def accueil_prog(request, pc_nom, pc_prenom) :
+    respo = ProgramCommitee.objects.filter(pc_nom=pc_nom, pc_prenom=pc_prenom)[0]
+
+    tot_confs = Organise.objects.filter(prog_commitee=respo.id_prog_commitee)
+
+    confs_intitule = [conf.conf_intitule for conf in tot_confs]
+
+    confs = [Conference.objects.filter(conf_intitule=conf)[0] for conf in confs_intitule]
+
+    return render(request, 'responsable/accueil_pc.html', context={"responsable":respo, "confs":confs})
+
+
+def soumission(request, conf_intitule):
+    sess = Session.objects.filter(conf_intitule=conf_intitule)
+
+    tot_sess = [session.sess_intitule for session in sess]
+
+    tot_soumi = []
+    for sess_intitule in tot_sess :
+        soumissions = Soumission.objects.filter(session_intitule=sess_intitule)
+
+        for soumission in soumissions :
+            tot_soumi.append(soumission)
+
+    return render(request, 'responsable/soumission.html', context={'conf_intitule':conf_intitule, 'soumissions':tot_soumi})
+
+def changer_etat(request, soumi_intitule) :
+    return render(request, 'responsable/changer_etat.html', context={'soumi_intitule':soumi_intitule})
+
+def changer_etat_2(request, soumi_intitule) :
+    soumi = Soumission.objects.filter(soumi_intitule=soumi_intitule)[0]
+
+    if request.method == 'POST' :
+        input = request.POST.get('select')
+        soumi.etat = input
+        soumi.save()
+        return HttpResponse('Bien pris en compte')
+
+
+    else :
+        return HttpResponse('Invalid request method')

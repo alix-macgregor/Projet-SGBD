@@ -1,0 +1,20 @@
+{% extends 'accueil.html' %}
+
+{% block content %}
+
+<body>
+  <div class="dropdown-container">
+    <h2>Nouvel état :</h2>
+    <form action="{% url 'changer_etat_2' soumi_intitule=soumi_intitule %}" method="post">
+      {% csrf_token %}
+      <select class="dropdown" name="select">
+          <option value="En attente">En attente</option>
+          <option value="Validé">Validé</option>
+          <option value="Refusé">Refusé</option>
+      </select>
+      <button class="submit-button" type="submit">Suivant</button>
+    </form>
+</div>
+</body>
+
+{% endblock %}

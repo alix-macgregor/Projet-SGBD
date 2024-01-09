@@ -2,24 +2,23 @@
 
 {% block content %}
 <section id="main-content">
-  <h2>Votre endroit personnel : {{ organisateur.orga_nom }}</h2>
-  <em>Adresse : {{ organisateur.adresse }},</em>
-  <em>Email: {{ organisateur.mail }}</em>
+  <h2>Votre endroit personnel : {{ responsable.pc_nom }} {{ responsable.pc_prenom }}</h2>
+  <em>Adresse : {{ responsable.adresse_professionnelle }},</em>
+  <em>Email: {{ responsable.mail }}</em>
 </section>
 
 
 <section id="présentation des conferences">
-  <h2>Vous organisez cette conférence :</h2>
+  <h2>Les conférences que vous organisez :</h2>
   <table>
     <thead>
         <tr>
-            <th>Intitulé</th>
+            <th>Initulé</th>
             <th>Présentation</th>
             <th>Date de début</th>
             <th>Date de fin</th>
             <th>Localisation</th>
             <th>Inscrits</th>
-            <th>Responsables</th>
         </tr>
     </thead>
     <tbody>
@@ -35,14 +34,10 @@
                     <h3>Voir les inscrits</h3>
                   </a>
                 </td>
-                <td>
-                  <a href="{% url 'responsables' conf_intitule=conf.conf_intitule %}">
-                    <h3>Voir les responsables</h3>
-                  </a>
-                </td>
             </tr>
         {% endfor %}
   </tbody>
   </table>
 </section>
+
 {% endblock %}

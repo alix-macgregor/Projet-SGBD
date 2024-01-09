@@ -1,0 +1,34 @@
+{% extends 'accueil.html' %}
+
+{% block content %}
+<section id="présentation des conferences">
+  <h2>Les soumissions de la conférence {{ conf_intitule }} :</h2>
+  <table>
+    <thead>
+        <tr>
+            <th>Initulé</th>
+            <th>Date de Soumission</th>
+            <th>Catégorie</th>
+            <th>État</th>
+            <th>Changer l'état</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for soumi in soumissions %}
+            <tr>
+                <td>{{ soumi.soumi_intitule }}</td>
+                <td>{{ soumi.date_de_soumission }}</td>
+                <td>{{ soumi.categorie }}</td>
+                <td>{{ soumi.etat }}</td>
+                <td>
+                  <a href="{% url 'changer_etat' soumi_intitule=soumi.soumi_intitule %}">
+                    <h3>Changer l'état</h3>
+                  </a>
+                </td>
+            </tr>
+        {% endfor %}
+  </tbody>
+  </table>
+</section>
+
+{% endblock %}

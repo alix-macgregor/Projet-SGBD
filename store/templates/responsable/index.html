@@ -3,7 +3,7 @@
 {% block content %}
 <section id="login-section">
 <h2>Connexion - Vous êtes un responsable</h2>
-<form action="{% url 'process_form' %}" method="post">
+<form action="{% url 'process_form_respo' %}" method="post">
   {% csrf_token %}
   <label for="name">Votre nom:</label>
   <input type="text" id="name" name="name" required>
@@ -12,8 +12,17 @@
   <input type="text" id="surname" name="surname" required>
 
   <label for="email">Votre email:</label>
-  <input type="text" id="email" name="email" required>
+  <input type="text" id="email" name="email" value="example@email.com" required>
 
+  <label for="adresse">Votre adresse:</label>
+  <input type="text" id="adresse" name="adresse" value= "Champ de Mars, 5 Av. Anatole France, 75007 Paris" required>
+
+  <select class="dropdown" name="select">
+      <option value="General Chair">General Chair</option>
+      <option value="Poster Chair">Poster Chair</option>
+      <option value="Programme Commitee">Programme Commitee</option>
+      <option value="Steering Commitee">Steering Commitee</option>
+  </select>
 
   <button type="submit">Se connecter</button>
 </form>

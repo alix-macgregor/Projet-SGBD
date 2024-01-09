@@ -1,0 +1,40 @@
+{% extends 'accueil.html' %}
+
+{% block content %}
+
+<section id="liste_inscrits">
+  <h2>Responsables de {{ conf }} :</h2>
+  <table>
+    <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Résponsabilité</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for respo in responsables %}
+            <tr>
+                <td>{{ respo.resp_nom }}</td>
+                <td>{{ respo.resp_prenom }}</td>
+                <td>{{ respo.responsabilite }}</td>
+            </tr>
+        {% endfor %}
+        {% for respo in pc %}
+            <tr>
+                <td>{{ respo.pc_nom }}</td>
+                <td>{{ respo.pc_prenom }}</td>
+                <td>Programme Commitee</td>
+            </tr>
+        {% endfor %}
+  </tbody>
+  </table>
+</section>
+
+<section>
+  <a href="{% url 'ajouter' conf_intitule=conf %}">
+    <button>Ajouter un responsable</button>
+  </a>
+</section>
+
+{% endblock %}
